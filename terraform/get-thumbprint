@@ -1,0 +1,6 @@
+#!/bin/sh
+openssl s_client -servername gitlab.com -showcerts -connect gitlab.com:443 < /dev/null 2>/dev/null | \
+  sed -n '/-----BEGIN CERTIFICATE/,/-----END CERTIFICATE/p' |  \
+  awk -v RS='\n-----END CERTIFICATE-----\n' 'NF {cert=$0} END {print cert RS}' | \
+  openssl x509  -fingerprint -sha1 -noout | \
+  awk -F = '/SHA1 Fingerprint/{ gsub(/:/, ""); printf("{\"value\": \"%s\"}\n", tolower($2))}'
