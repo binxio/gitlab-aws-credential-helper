@@ -81,8 +81,11 @@ func WriteDotEnv(filename string, credentials *awssts.Credentials) error {
 		if value == nil {
 			value = &empty
 		}
-		line := fmt.Sprintf("%s=\"%s\"\n", key, *value)
-		file.WriteString(line)
+		line := fmt.Sprintf("%s=%s\n", key, *value)
+		_, err = file.WriteString(line)
+		if err != nil {
+			log.Fatalf("error writing environment variable value to file, %s", err)
+		}
 	}
 
 	writeEnvVar("AWS_ACCESS_KEY_ID", credentials.AccessKeyId)
