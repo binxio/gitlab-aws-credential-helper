@@ -83,7 +83,7 @@ func (c *RootCommand) GetSTSCredentials() error {
 
 	c.RoleArn = fmt.Sprintf("arn:aws:iam::%s:role/%s", c.AwsAccount, c.RoleName)
 
-	if c.WebIdentityToken = os.Getenv(c.WebIdentityTokenName); c.WebIdentityToken != "" {
+	if c.WebIdentityToken = os.Getenv(c.WebIdentityTokenName); c.WebIdentityToken == "" {
 		return errors.New(fmt.Sprintf("the environment variable %s is not set", c.WebIdentityTokenName))
 	}
 
