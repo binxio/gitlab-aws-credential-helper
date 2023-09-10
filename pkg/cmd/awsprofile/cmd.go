@@ -71,7 +71,7 @@ func WriteToSharedConfig(profileName string, credentials *awssts.Credentials) (e
 	if credentialFile = os.Getenv("AWS_SHARED_CREDENTIALS_FILE"); credentialFile == "" {
 		credentialFile = os.ExpandEnv("$HOME/.aws/credentials")
 	}
-	cfg, err := ini.Load(credentialFile)
+	cfg, err := ini.LooseLoad(credentialFile)
 	if err != nil {
 		return err
 	}
@@ -93,7 +93,10 @@ func WriteToSharedConfig(profileName string, credentials *awssts.Credentials) (e
 		if section.HasKey(key) {
 			section.Key(key).SetValue(value)
 		} else {
-			section.NewKey(key, value)
+			_, err = section.NewKey(key, value)
+			if err != nil {
+				log.Printf("failed to store new key %s in the config file; %s", key, err)
+			}
 		}
 	}
 	directory := filepath.Dir(credentialFile)
