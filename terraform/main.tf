@@ -48,7 +48,6 @@ resource "aws_iam_role" "gitlab_pipeline" {
     name        = "MetaInformationAccess"
 
     policy = jsonencode({
-      Description = "Policy for meta information access",
       Statement = [
         {
           Effect = "Allow",
