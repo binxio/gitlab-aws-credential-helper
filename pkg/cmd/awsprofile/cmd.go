@@ -27,20 +27,40 @@ func NewCmd() *cobra.Command {
 				Use:   "aws-profile",
 				Short: "stores the credentials in the AWS shared credentials file",
 				Long: `
-Stores the credentials in the AWS shared credentials file under the specified profile name.
+Stores the credentials in the AWS shared credentials file under the profile name "default". 
 
-Usage:
+The profile name defaults to "default"  but can be overridden through the environment
+variable GITLAB_AWS_PROFILE or the command line option -p.
 
-	get_aws_credentials:
+The following gitlab-ci.yml snippets shows the usage of the aws-profile command:
+
+    # extract the binary as artifact into the workspace
+	get-credential-helper:
+	  stage: .pre
 	  image:
-        name: ghcr.io/binxio/gitlab-aws-credential-helper
-        entrypoint: [""]
+		name: ghcr.io/binxio/gitlab-aws-credential-helper:0.0.0-6-gc168a6d
+		entrypoint: [""]
+	  script:
+		- cp /usr/local/bin/gitlab-aws-credential-helper .
+	  artifacts:
+		expire_in: 1 hour
+		paths:
+		  - gitlab-aws-credential-helper
+
+	aws-profile-demo:
+	  stage: build
+	  image:
+		name: public.ecr.aws/aws-cli/aws-cli:2.13.17
+		entrypoint: [""]
 	  id_tokens:
-		JWT_TOKEN:
+		GITLAB_AWS_IDENTITY_TOKEN:
 		  aud: https://gitlab.com
-	  variables:
-		GITLAB_AWS_ACCOUNT_ID: 123234344352
-        GITLAB_AWS_PROFILE: my-profile
+	  script:
+        # use the credential helper
+		- ./gitlab-aws-credential-helper aws-profile
+		- aws sts get-caller-identity
+	  needs:
+		- get-credential-helper
 `,
 			},
 		},

@@ -25,20 +25,41 @@ func NewCmd() *cobra.Command {
 				Use:   "dotenv",
 				Short: "stores the credentials as a dotenv file",
 				Long: `
-Stores the credentials as a dotenv, to allow the AWS credentials to be shared between Gitlab jobs.
+Stores the credentials as the dotenv file .gitlab-aws-credentials.env, which allow the AWS credentials to be 
+shared between Gitlab jobs through the environment variables AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
+and AWS_SESSION_TOKEN.
 
-Usage:
+The dotenv filename defaults to .gitlab-aws-credentials.env but can be overridden through the environment
+variable GITLAB_AWS_DOTENV_FILE or the command line option -f.
 
-	get_aws_credentials:
-	  image: ghcr.io/binxio/gitlab-aws-credential-helper
+The following gitlab-ci.yml snippets shows the usage of the dotenv command:
+
+	variables:
+	  GITLAB_AWS_ACCOUNT_ID: 123456789012
+	
+	get-aws-credentials:
+	  stage: .pre
 	  id_tokens:
-		WEB_IDENTITY_TOKEN:
+		GITLAB_AWS_IDENTITY_TOKEN:
 		  aud: https://gitlab.com
-	  variables:
-		AWS_ACCOUNT_ID: 123234344352
-      artifacts:
-        reports:
-          dotenv: .gitlab-aws-credentials.env
+	  image:
+		name: ghcr.io/binxio/gitlab-aws-credential-helper:0.1.0
+		entrypoint: [""]
+	  script:
+		- gitlab-aws-credential-helper dotenv
+	  artifacts:
+		reports:
+		  dotenv: .gitlab-aws-credentials.env
+	
+	dotenv:
+	  stage: build
+	  image:
+		name: public.ecr.aws/aws-cli/aws-cli:2.13.17
+		entrypoint: [""]
+	  script:
+		- aws sts get-caller-identity
+	  needs:
+		- get-aws-credentials
 `,
 			},
 		},
