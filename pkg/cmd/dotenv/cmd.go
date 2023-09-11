@@ -48,6 +48,7 @@ The following gitlab-ci.yml snippets shows the usage of the dotenv command:
 	  script:
 		- gitlab-aws-credential-helper dotenv
 	  artifacts:
+		expire_in: 1 hour
 		reports:
 		  dotenv: .gitlab-aws-credentials.env
 	
@@ -60,6 +61,8 @@ The following gitlab-ci.yml snippets shows the usage of the dotenv command:
 		- aws sts get-caller-identity
 	  needs:
 		- get-aws-credentials
+
+Note that the dotenv file with the credentials will be available for download from the pipeline artifacts.
 `,
 			},
 		},
