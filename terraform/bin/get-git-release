@@ -1,0 +1,5 @@
+#!/bin/sh
+cat <<!
+{
+  "release": "$(git describe --tags HEAD)"
+}

@@ -1,0 +1,67 @@
+variables:
+  GITLAB_AWS_ACCOUNT_ID: ${aws_account_id}
+
+get-aws-credentials:
+  stage: .pre
+  id_tokens:
+    GITLAB_AWS_IDENTITY_TOKEN:
+      aud: https://gitlab.com
+  image:
+    name: ghcr.io/binxio/gitlab-aws-credential-helper:${release}
+    entrypoint: [""]
+  script:
+    - gitlab-aws-credential-helper dotenv
+  artifacts:
+    reports:
+      dotenv: .gitlab-aws-credentials.env
+
+get-credential-helper:
+  stage: .pre
+  image:
+    name: ghcr.io/binxio/gitlab-aws-credential-helper:${release}
+    entrypoint: [""]
+  script:
+    - cp /usr/local/bin/gitlab-aws-credential-helper .
+  artifacts:
+    expire_in: 1 hour
+    paths:
+      - gitlab-aws-credential-helper
+
+
+dotenv:
+  stage: build
+  image:
+    name: public.ecr.aws/aws-cli/aws-cli:2.13.17
+    entrypoint: [""]
+  script:
+    - aws sts get-caller-identity
+  needs:
+    - get-aws-credentials
+
+aws-profile-demo:
+  stage: build
+  needs:
+    - get-credential-helper
+  image:
+    name: public.ecr.aws/aws-cli/aws-cli:2.13.17
+    entrypoint: [""]
+  id_tokens:
+    GITLAB_AWS_IDENTITY_TOKEN:
+      aud: https://gitlab.com
+  script:
+    - ./gitlab-aws-credential-helper aws-profile
+    - aws sts get-caller-identity
+
+credential-process-demo:
+  stage: build
+  needs:
+    - get-credential-helper
+  image:
+    name: public.ecr.aws/aws-cli/aws-cli:2.13.17
+    entrypoint: [""]
+  id_tokens:
+    GITLAB_AWS_IDENTITY_TOKEN:
+      aud: https://gitlab.com
+  script:
+    - aws configure set credential_process "$PWD/gitlab-aws-credential-helper process"
+    - aws sts get-caller-identity
