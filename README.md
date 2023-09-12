@@ -1,10 +1,10 @@
 Gitlab credential helper for AWS
 =================================
 The goal of the utility is to make it as easy as possible, to access AWS from a Gitlab CI/CD pipeline using the gitlab pipeline [id token](https://docs.gitlab.com/ee/ci/secrets/id_token_authentication.html).
-To make this as easy as possible, it will use the pipeline id and the gitlab project path slug to determine 
-the role and session name. It just needs the AWS account number and the Gitlab ID token.
+You only need to specify the AWS account number and add the Gitlab ID token: it will use the pipeline id and the 
+gitlab project path slug to determine the IAM role- and session name. 
 
-If your project is called "binxio-aws-credential-helper-demo", the IAM role it wants to assume is
+For instance, if your project path is  "binxio/aws-credential-helper-demo", the IAM role it wants to assume is
 "gitlab-binxio-aws-credential-helper-demo". The ID token is expected to be in the environment
 variable GITLAB_AWS_IDENTITY_TOKEN.
 
