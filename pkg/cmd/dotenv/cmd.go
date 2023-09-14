@@ -48,7 +48,7 @@ The following gitlab-ci.yml snippets shows the usage of the dotenv command:
 	  script:
 		- gitlab-aws-credential-helper dotenv
 	  artifacts:
-		expire_in: 1 hour
+		expire_in: 10 min
 		reports:
 		  dotenv: .gitlab-aws-credentials.env
 	
@@ -62,7 +62,11 @@ The following gitlab-ci.yml snippets shows the usage of the dotenv command:
 	  needs:
 		- get-aws-credentials
 
-Note that the dotenv file with the credentials will be available for download from the pipeline artifacts.
+
+Note that the dotenv file with the credentials will be available for download from the
+pipeline artifacts by all roles associated with the project, including guest (!).
+
+See https://docs.gitlab.com/ee/user/permissions.html#gitlab-cicd-permissions
 `,
 			},
 		},
