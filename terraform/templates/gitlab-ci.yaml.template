@@ -12,6 +12,7 @@ get-aws-credentials:
   script:
     - gitlab-aws-credential-helper dotenv
   artifacts:
+    expire_in: 5 min
     reports:
       dotenv: .gitlab-aws-credentials.env
 
