@@ -95,8 +95,6 @@ func WriteDotEnv(filename string, export bool, credentials *awssts.Credentials) 
 			}
 		}()
 	}
-	if export {
-	}
 
 	writeEnvVar := func(key string, value *string) {
 		var empty, prefix string
