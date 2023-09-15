@@ -135,14 +135,9 @@ The following gitlab-ci.yml snippets shows the usage of the env command:
 ### Flags
 In addition to the global flags, the following flags can be applied to override the sensible defaults:
 ```text
--f, --filename string                  the name of the dotenv file (default ".gitlab-aws-credentials.env")
+-f, --filename string                  the name of the dotenv file (default stdout)
+-e, --export                           prefix the environment variables with "export " (default false)
 ```
-The following table shows the default values these flags:
-
-| name                    | default value                  | override                     |
-|-------------------------|--------------------------------|------------------------------|
-| filename                | .gitlab-aws-credentials.env    | --filename/-f                |
-
 
 ### dotenv example
 The following gitlab-ci.yml snippets shows the usage of the dotenv command:
