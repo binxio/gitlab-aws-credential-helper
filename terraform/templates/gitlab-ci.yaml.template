@@ -10,7 +10,7 @@ get-aws-credentials:
     name: ghcr.io/binxio/gitlab-aws-credential-helper:${release}
     entrypoint: [""]
   script:
-    - gitlab-aws-credential-helper env  --export
+    - gitlab-aws-credential-helper env  --export  # just for demo purposes
     - gitlab-aws-credential-helper env > .gitlab-aws-credentials.env
   artifacts:
     expire_in: 5 min
@@ -30,7 +30,7 @@ get-credential-helper:
       - gitlab-aws-credential-helper
 
 
-dotenv:
+dotenv-demo:
   stage: build
   image:
     name: public.ecr.aws/aws-cli/aws-cli:2.13.17
@@ -52,6 +52,7 @@ aws-profile-demo:
       aud: https://gitlab.com
   script:
     - ./gitlab-aws-credential-helper aws-profile
+    - cat $HOME/.aws/credentials  # just for demo purposes
     - aws sts get-caller-identity
 
 credential-process-demo:
@@ -66,4 +67,5 @@ credential-process-demo:
       aud: https://gitlab.com
   script:
     - aws configure set credential_process "$PWD/gitlab-aws-credential-helper process"
+    - ./gitlab-aws-credential-helper process  # just for demo purposes
     - aws sts get-caller-identity
