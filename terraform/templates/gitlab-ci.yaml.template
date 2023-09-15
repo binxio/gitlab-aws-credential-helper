@@ -10,7 +10,8 @@ get-aws-credentials:
     name: ghcr.io/binxio/gitlab-aws-credential-helper:${release}
     entrypoint: [""]
   script:
-    - gitlab-aws-credential-helper dotenv
+    - gitlab-aws-credential-helper env  --export
+    - gitlab-aws-credential-helper env > .gitlab-aws-credentials.env
   artifacts:
     expire_in: 5 min
     reports:

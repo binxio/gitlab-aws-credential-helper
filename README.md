@@ -11,14 +11,14 @@ variable GITLAB_AWS_IDENTITY_TOKEN.
 ## usage
 There are three ways to use this utility:
 ```
-gitlab-aws-credential-helper dotenv [flags]
+gitlab-aws-credential-helper env [flags]
 gitlab-aws-credential-helper aws-profile [flags]
-gitlab-aws-credential-helper process [flags]
+gitlab-aws-credential-helper process
 ```
 
 - [aws-profile](#aws-profile) - updates the credentials in shared credentials in ~/.aws/credentials
 - [process](#credential-process) - implements the AWS [external credential](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sourcing-external.html) process interface
-- [dotenv](#dotenv) - exports the environment variables containing the AWS credentials
+- [env](#env) - prints the environment variables containing the AWS credentials
 
 
 ## Flags
@@ -134,16 +134,14 @@ aws-profile-demo:
     - get-credential-helper
 ```
 
-
-
-
-## dotenv
-Stores the credentials as the dotenv file .gitlab-aws-credentials.env, which allow the AWS credentials to be
-shared between Gitlab jobs through the environment variables AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
+## env
+Returns the credentials as the environment variables AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
 and AWS_SESSION_TOKEN.
 
-The dotenv filename defaults to .gitlab-aws-credentials.env but can be overridden through the environment
-variable GITLAB_AWS_DOTENV_FILE or the command line option -f.
+The environment variables are written to stdout, but can be overridden through the environment
+variable GITLAB_AWS_ENV_FILE or the command line option -f.
+
+The following gitlab-ci.yml snippets shows the usage of the env command:
 
 ### Flags
 In addition to the global flags, the following flags can be applied to override the sensible defaults:
@@ -160,35 +158,38 @@ The following table shows the default values these flags:
 ### dotenv example
 The following gitlab-ci.yml snippets shows the usage of the dotenv command:
 ```yaml
-variables:
-  GITLAB_AWS_ACCOUNT_ID: 123456789012
 
-get-aws-credentials:
-  stage: .pre
-  id_tokens:
-    GITLAB_AWS_IDENTITY_TOKEN:
-      aud: https://gitlab.com
-  image:
-    name: ghcr.io/binxio/gitlab-aws-credential-helper:0.1.0
-    entrypoint: [""]
-  script:
-    - gitlab-aws-credential-helper dotenv
-  artifacts:
-    expire_in: 10 min
-    reports:
-      dotenv: .gitlab-aws-credentials.env
-
-dotenv:
-  stage: build
-  image:
-    name: public.ecr.aws/aws-cli/aws-cli:2.13.17
-    entrypoint: [""]
-  script:
-    - aws sts get-caller-identity
-  needs:
-    - get-aws-credentials
+	variables:
+	  GITLAB_AWS_ACCOUNT_ID: 123456789012
+	
+	get-aws-credentials:
+	  stage: .pre
+	  id_tokens:
+		GITLAB_AWS_IDENTITY_TOKEN:
+		  aud: https://gitlab.com
+	  image:
+		name: ghcr.io/binxio/gitlab-aws-credential-helper:0.1.0
+		entrypoint: [""]
+	  script:
+		- gitlab-aws-credential-helper env > .gitlab-as-credentials.env
+	  artifacts:
+		expire_in: 10 min
+		reports:
+		  env: .gitlab-aws-credentials.env
+        # Note that the env file with the credentials will be available for download from the
+        # pipeline artifacts by all roles associated with the project, including guest (!).
+        # See https://docs.gitlab.com/ee/user/permissions.html#gitlab-cicd-permissions
+	
+	env:
+	  stage: build
+	  image:
+		name: public.ecr.aws/aws-cli/aws-cli:2.13.17
+		entrypoint: [""]
+	  script:
+		- aws sts get-caller-identity
+	  needs:
+		- get-aws-credentials
 ```
-
 Note that the dotenv file with the credentials will be available for download from the pipeline artifacts
 by all roles associated with the project, including guest (!).
 

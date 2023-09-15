@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/binxio/gitlab-aws-credential-helper/pkg/cmd/awsprofile"
-	"github.com/binxio/gitlab-aws-credential-helper/pkg/cmd/dotenv"
+	"github.com/binxio/gitlab-aws-credential-helper/pkg/cmd/env"
 	"github.com/binxio/gitlab-aws-credential-helper/pkg/cmd/process"
 	"github.com/spf13/cobra"
 )
@@ -45,13 +45,13 @@ The following gitlab-ci.yml snippets shows the minimal configuration of the cred
 		name: ghcr.io/binxio/gitlab-aws-credential-helper:0.1.0
 		entrypoint: [""]
 	  script:
-		- gitlab-aws-credential-helper dotenv
+		- gitlab-aws-credential-helper env
 	  artifacts:
 		reports:
-		  dotenv: .gitlab-aws-credentials.env
+		  env: .gitlab-aws-credentials.env
 `,
 	}
-	rootCmd.AddCommand(dotenv.NewCmd())
+	rootCmd.AddCommand(env.NewCmd())
 	rootCmd.AddCommand(awsprofile.NewCmd())
 	rootCmd.AddCommand(process.NewCmd())
 
