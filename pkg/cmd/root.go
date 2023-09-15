@@ -39,7 +39,7 @@ func (c *RootCommand) AddPersistentFlags() {
 	c.Flags().StringVarP(&c.RoleName, "role-name", "r", c.RoleName, "Name of the role to assume (default gitlab-$CI_PROJECT_PATH_SLUG)")
 	c.Flags().StringVarP(&c.RoleSessionName, "role-session-name", "n", "", "the role session name to use  (default <role name>-$CI_PIPELINE_ID)`")
 	c.Flags().StringVarP(&c.WebIdentityTokenName, "web-identity-token-name", "j", c.WebIdentityTokenName, "of the environment variable with the JWT id token (default \"GITLAB_AWS_IDENTITY_TOKEN\")")
-	c.Flags().Int64VarP(&c.DurationSeconds, "duration-seconds", "d", 3600, "of the session")
+	c.Flags().Int64VarP(&c.DurationSeconds, "duration-seconds", "d", c.DurationSeconds, "of the session")
 	c.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
 		return c.GetSTSCredentials()
 	}
@@ -63,6 +63,8 @@ func (c *RootCommand) SetDefaults() {
 		} else {
 			log.Fatalf("the environment variable GITLAB_AWS_DURATION_SECONDS is not a positive integer")
 		}
+	} else {
+		c.DurationSeconds = 3600
 	}
 
 	if c.WebIdentityTokenName = os.Getenv("GITLAB_AWS_IDENTITY_TOKEN_NAME"); c.WebIdentityTokenName == "" {
