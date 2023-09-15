@@ -11,9 +11,9 @@ variable GITLAB_AWS_IDENTITY_TOKEN.
 ## usage
 There are three ways to use this utility:
 ```
-gitlab-aws-credential-helper env [flags]
 gitlab-aws-credential-helper aws-profile [flags]
 gitlab-aws-credential-helper process
+gitlab-aws-credential-helper env [flags]
 ```
 
 - [aws-profile](#aws-profile) - updates the credentials in shared credentials in ~/.aws/credentials
@@ -24,23 +24,12 @@ gitlab-aws-credential-helper process
 ## Flags
 The following flags can be applied to override the sensible defaults:
 ```text
--A, --aws-account string               AWS account id to assume to role in
+-A, --aws-account string               required - AWS account id to assume to role in (default $GITLAB_AWS_ACCOUNT_ID)
+-r, --role-name string                 required - Name of the role to assume (default gitlab-$CI_PROJECT_PATH_SLUG)
+-n, --role-session-name string         required - the role session name to use (default <role name>-$CI_PIPELINE_ID)`
+-j, --web-identity-token-name string   required - of the environment variable with the JWT id token (default "GITLAB_AWS_IDENTITY_TOKEN")
 -d, --duration-seconds int             of the session (default 3600)
--r, --role-name string                 Name of the role to assume
--n, --role-session-name string         the role session name to use
--j, --web-identity-token-name string   of the environment variable with the JWT id token (default "GITLAB_AWS_IDENTITY_TOKEN")
 ```
-
-The following table shows the default values these flags:
-
-| name                    | default value                  | override                     |
-|-------------------------|--------------------------------|------------------------------|
-| role name               | gitlab-$CI_PROJECT_PATH_SLUG   | --role-name/-r               |
-| role session name       | &lt;role name>-$CI_PIPELINE_ID | --role-session-name/-n       |
-| aws account id          | $GITLAB_AWS_ACCOUNT_ID         | --aws-account/-A             |
-| duration seconds        | $GITLAB_AWS_DURATION_SECONDS   | --duration-seconds/-d        |
-| web identity token name | GITLAB_AWS_IDENTITY_TOKEN      | --web-identity-token-name/-j |
-
 
 ## AWS profile
 Stores the credentials in the AWS shared credentials file under the profile name "default".
@@ -158,37 +147,36 @@ The following table shows the default values these flags:
 ### dotenv example
 The following gitlab-ci.yml snippets shows the usage of the dotenv command:
 ```yaml
+variables:
+  GITLAB_AWS_ACCOUNT_ID: 123456789012
 
-	variables:
-	  GITLAB_AWS_ACCOUNT_ID: 123456789012
-	
-	get-aws-credentials:
-	  stage: .pre
-	  id_tokens:
-		GITLAB_AWS_IDENTITY_TOKEN:
-		  aud: https://gitlab.com
-	  image:
-		name: ghcr.io/binxio/gitlab-aws-credential-helper:0.1.0
-		entrypoint: [""]
-	  script:
-		- gitlab-aws-credential-helper env > .gitlab-as-credentials.env
-	  artifacts:
-		expire_in: 10 min
-		reports:
-		  env: .gitlab-aws-credentials.env
-        # Note that the env file with the credentials will be available for download from the
-        # pipeline artifacts by all roles associated with the project, including guest (!).
-        # See https://docs.gitlab.com/ee/user/permissions.html#gitlab-cicd-permissions
-	
-	env:
-	  stage: build
-	  image:
-		name: public.ecr.aws/aws-cli/aws-cli:2.13.17
-		entrypoint: [""]
-	  script:
-		- aws sts get-caller-identity
-	  needs:
-		- get-aws-credentials
+get-aws-credentials:
+  stage: .pre
+  id_tokens:
+    GITLAB_AWS_IDENTITY_TOKEN:
+      aud: https://gitlab.com
+  image:
+    name: ghcr.io/binxio/gitlab-aws-credential-helper:0.1.0
+    entrypoint: [""]
+  script:
+    - gitlab-aws-credential-helper env > .gitlab-as-credentials.env
+  artifacts:
+    expire_in: 10 min
+    reports:
+      env: .gitlab-aws-credentials.env
+    # Note that the env file with the credentials will be available for download from the
+    # pipeline artifacts by all roles associated with the project, including guest (!).
+    # See https://docs.gitlab.com/ee/user/permissions.html#gitlab-cicd-permissions
+
+env:
+  stage: build
+  image:
+    name: public.ecr.aws/aws-cli/aws-cli:2.13.17
+    entrypoint: [""]
+  script:
+    - aws sts get-caller-identity
+  needs:
+    - get-aws-credentials
 ```
 Note that the dotenv file with the credentials will be available for download from the pipeline artifacts
 by all roles associated with the project, including guest (!).

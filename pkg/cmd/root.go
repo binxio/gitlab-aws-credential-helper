@@ -34,11 +34,12 @@ type RootCommand struct {
 func (c *RootCommand) AddPersistentFlags() {
 	c.PersistentFlags().SortFlags = false
 	c.SetDefaults()
-	c.Flags().StringVarP(&c.RoleName, "role-name", "r", c.RoleName, "Name of the role to assume")
-	c.Flags().StringVarP(&c.RoleSessionName, "role-session-name", "n", "", "the role session name to use")
-	c.Flags().StringVarP(&c.AwsAccount, "aws-account", "A", c.AwsAccount, "AWS account id to assume to role in")
+	c.Flags().SortFlags = false
+	c.Flags().StringVarP(&c.AwsAccount, "aws-account", "A", c.AwsAccount, "AWS account id to assume to role in (default $GITLAB_AWS_ACCOUNT_ID)")
+	c.Flags().StringVarP(&c.RoleName, "role-name", "r", c.RoleName, "Name of the role to assume (default gitlab-$CI_PROJECT_PATH_SLUG)")
+	c.Flags().StringVarP(&c.RoleSessionName, "role-session-name", "n", "", "the role session name to use  (default <role name>-$CI_PIPELINE_ID)`")
+	c.Flags().StringVarP(&c.WebIdentityTokenName, "web-identity-token-name", "j", c.WebIdentityTokenName, "of the environment variable with the JWT id token (default \"GITLAB_AWS_IDENTITY_TOKEN\")")
 	c.Flags().Int64VarP(&c.DurationSeconds, "duration-seconds", "d", 3600, "of the session")
-	c.Flags().StringVarP(&c.WebIdentityTokenName, "web-identity-token-name", "j", c.WebIdentityTokenName, "of the environment variable with the JWT id token")
 	c.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
 		return c.GetSTSCredentials()
 	}

@@ -32,28 +32,13 @@ The following table shows the default values for the call:
 | duration seconds        | $GITLAB_AWS_DURATION_SECONDS    | --duration-seconds/-d        |
 | web identity token name | GITLAB_AWS_IDENTITY_TOKEN       | --web-identity-token-name/-j |
 
-The following gitlab-ci.yml snippets shows the minimal configuration of the credential helper:
-
-	get-aws-credentials:
-	  stage: .pre
-      variable:
-        GITLAB_AWS_ACCOUNT_ID: 123456789012
-	  id_tokens:
-		GITLAB_AWS_IDENTITY_TOKEN:
-		  aud: https://gitlab.com
-	  image:
-		name: ghcr.io/binxio/gitlab-aws-credential-helper:0.1.0
-		entrypoint: [""]
-	  script:
-		- gitlab-aws-credential-helper env
-	  artifacts:
-		reports:
-		  env: .gitlab-aws-credentials.env
+The credentials can be returned either as environment variables, stored in a AWS shared credentials file or
+returned as json object suitable for the AWS credential_process interface.
 `,
 	}
-	rootCmd.AddCommand(env.NewCmd())
 	rootCmd.AddCommand(awsprofile.NewCmd())
 	rootCmd.AddCommand(process.NewCmd())
+	rootCmd.AddCommand(env.NewCmd())
 
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
