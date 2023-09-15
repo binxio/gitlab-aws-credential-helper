@@ -3,7 +3,6 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"log"
 	"os"
 	"strconv"
 
@@ -38,11 +37,29 @@ func (c *RootCommand) AddPersistentFlags() {
 	c.Flags().StringVarP(&c.AwsAccount, "aws-account", "A", c.AwsAccount, "AWS account id to assume to role in (default $GITLAB_AWS_ACCOUNT_ID)")
 	c.Flags().StringVarP(&c.RoleName, "role-name", "r", c.RoleName, "Name of the role to assume (default gitlab-$CI_PROJECT_PATH_SLUG)")
 	c.Flags().StringVarP(&c.RoleSessionName, "role-session-name", "n", "", "the role session name to use  (default <role name>-$CI_PIPELINE_ID)`")
-	c.Flags().StringVarP(&c.WebIdentityTokenName, "web-identity-token-name", "j", c.WebIdentityTokenName, "of the environment variable with the JWT id token (default \"GITLAB_AWS_IDENTITY_TOKEN\")")
+	c.Flags().StringVarP(&c.WebIdentityTokenName, "web-identity-token-name", "j", c.WebIdentityTokenName, "of the environment variable with the JWT id token (default GITLAB_AWS_IDENTITY_TOKEN)")
 	c.Flags().Int64VarP(&c.DurationSeconds, "duration-seconds", "d", c.DurationSeconds, "of the session")
 	c.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
+		if _, err := GetDurationSecondsFromEnvironment(); err != nil {
+			return err
+		}
 		return c.GetSTSCredentials()
 	}
+}
+
+// GetDurationSecondsFromEnvironment returns the integer value from GITLAB_AWS_DURATION_SECONDS or the default 3600 if it does not exist.
+// an invalid integer value, return the default value and err set.
+func GetDurationSecondsFromEnvironment() (seconds int64, err error) {
+	seconds = 3600
+	if durationSeconds := os.Getenv("GITLAB_AWS_DURATION_SECONDS"); durationSeconds != "" {
+		var s int
+		if s, err = strconv.Atoi(durationSeconds); err == nil && seconds > 0 {
+			return int64(s), nil
+		} else {
+			return seconds, errors.New("the environment variable GITLAB_AWS_DURATION_SECONDS is not a positive integer")
+		}
+	}
+	return seconds, err
 }
 
 // SetDefaults sets the defaults for the root command.
@@ -57,15 +74,7 @@ func (c *RootCommand) SetDefaults() {
 		c.AwsAccount = accountId
 	}
 
-	if durationSeconds := os.Getenv("GITLAB_AWS_DURATION_SECONDS"); durationSeconds != "" {
-		if seconds, err := strconv.Atoi(durationSeconds); err == nil && seconds > 0 {
-			c.DurationSeconds = int64(seconds)
-		} else {
-			log.Fatalf("the environment variable GITLAB_AWS_DURATION_SECONDS is not a positive integer")
-		}
-	} else {
-		c.DurationSeconds = 3600
-	}
+	c.DurationSeconds, _ = GetDurationSecondsFromEnvironment()
 
 	if c.WebIdentityTokenName = os.Getenv("GITLAB_AWS_IDENTITY_TOKEN_NAME"); c.WebIdentityTokenName == "" {
 		c.WebIdentityTokenName = "GITLAB_AWS_IDENTITY_TOKEN"
