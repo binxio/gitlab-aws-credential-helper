@@ -7,7 +7,6 @@ import (
 
 	awssts "github.com/aws/aws-sdk-go/service/sts"
 	"github.com/binxio/gitlab-aws-credential-helper/pkg/cmd"
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
 
@@ -70,18 +69,11 @@ The following gitlab-ci.yml snippets shows the usage of the env command:
 	}
 
 	c.AddPersistentFlags()
-	c.Flags().StringVarP(&c.Filename, "filename", "f", "-", "the name of the env file")
+	c.Flags().StringVarP(&c.Filename, "filename", "f", "", "the name of the env file")
 	c.Flags().BoolVarP(&c.Export, "export", "e", false, "prefix variables with export keyword")
 
 	c.RunE = func(cmd *cobra.Command, args []string) error {
 		return WriteDotEnv(c.Filename, c.Export, c.Credentials)
-	}
-
-	c.PreRunE = func(cmd *cobra.Command, args []string) error {
-		if c.Filename == "" {
-			return errors.New("no --filename was specified or GITLAB_AWS_DOTENV_FILE was empty.")
-		}
-		return nil
 	}
 
 	return &c.Command
