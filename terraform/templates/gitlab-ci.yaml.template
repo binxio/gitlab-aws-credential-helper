@@ -30,7 +30,7 @@ get-credential-helper:
       - gitlab-aws-credential-helper
 
 
-dotenv-demo:
+env-demo:
   stage: build
   image:
     name: public.ecr.aws/aws-cli/aws-cli:2.13.17

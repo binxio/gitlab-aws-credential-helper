@@ -32,13 +32,13 @@ func splitEnvironmentVariable(envEntry string) (string, string) {
 }
 
 // NewEnvironmentWithCredentials creates a new environment variable array adding the environment variables AWS_ACCESS_KEY_ID,
-// AWS_SECRET_ACCESS_KEY and AWS_SESSION_TOKEN. requires the credential AccessKeyId, SecretAccessKey and SessionToken to be set.
+// AWS_SECRET_ACCESS_KEY and AWS_SESSION_TOKEN.
 func NewEnvironmentWithCredentials(env []string, credentials *awssts.Credentials) []string {
 	result := make([]string, 0, len(env)+3)
-	credentialValues := map[string]string{
-		"AWS_ACCESS_KEY_ID":     *credentials.AccessKeyId,
-		"AWS_SECRET_ACCESS_KEY": *credentials.SecretAccessKey,
-		"AWS_SESSION_TOKEN":     *credentials.SessionToken,
+	credentialValues := map[string]*string{
+		"AWS_ACCESS_KEY_ID":     credentials.AccessKeyId,
+		"AWS_SECRET_ACCESS_KEY": credentials.SecretAccessKey,
+		"AWS_SESSION_TOKEN":     credentials.SessionToken,
 	}
 
 	for _, envEntry := range env {
@@ -47,8 +47,14 @@ func NewEnvironmentWithCredentials(env []string, credentials *awssts.Credentials
 			result = append(result, envEntry)
 		}
 	}
-	for name, value := range credentialValues {
-		result = append(result, fmt.Sprintf("%s=%s", name, value))
+
+	for _, name := range []string{"AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "AWS_SESSION_TOKEN"} {
+		value, _ := credentialValues[name]
+		if value != nil {
+			result = append(result, fmt.Sprintf("%s=%s", name, *value))
+		} else {
+			result = append(result, fmt.Sprintf("%s=", name))
+		}
 	}
 
 	return result
