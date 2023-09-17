@@ -1,5 +1,6 @@
 variables:
   GITLAB_AWS_ACCOUNT_ID: ${aws_account_id}
+  GITLAB_AWS_DURATION_SECONDS: 900
 
 get-aws-credentials:
   stage: .pre
