@@ -1,6 +1,7 @@
 package env
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -26,10 +27,8 @@ func NewCmd() *cobra.Command {
 				Short: "returns the credentials as environment variables",
 				Long: `
 Returns the credentials as the environment variables AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
-and AWS_SESSION_TOKEN.
-
-The environment variables are written to stdout, but can be overridden through the environment
-variable GITLAB_AWS_ENV_FILE or the command line option -f.
+and AWS_SESSION_TOKEN. When you pass a command to execute on the command line, the command
+will be executed without writing the credentials.
 
 The following gitlab-ci.yml snippets shows the usage of the env command:
 
@@ -72,8 +71,19 @@ The following gitlab-ci.yml snippets shows the usage of the env command:
 	c.Flags().StringVarP(&c.Filename, "filename", "f", "", "the name of the env file")
 	c.Flags().BoolVarP(&c.Export, "export", "e", false, "prefix variables with export keyword")
 
+	c.PreRunE = func(cmd *cobra.Command, args []string) error {
+		if c.Filename != "" && len(args) > 0 {
+			return errors.New("either specify an output file or a command to execute")
+		}
+		return nil
+	}
+
 	c.RunE = func(cmd *cobra.Command, args []string) error {
-		return WriteDotEnv(c.Filename, c.Export, c.Credentials)
+		if len(args) > 0 {
+			return ExecProcess(args, c.Credentials)
+		} else {
+			return WriteDotEnv(c.Filename, c.Export, c.Credentials)
+		}
 	}
 
 	return &c.Command

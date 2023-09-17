@@ -10,7 +10,7 @@ resource "gitlab_repository_file" "gitlab-ci" {
   content        = base64encode(data.template_file.gitlab-ci.rendered)
   author_email   = "mvanholsteijn@xebia.com"
   author_name    = "Mark van Holsteijn"
-  commit_message = "initial import"
+  commit_message = format("updated with commit %s", data.external.release.result.release)
 }
 
 data "template_file" "gitlab-ci" {

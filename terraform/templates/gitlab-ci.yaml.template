@@ -69,3 +69,16 @@ credential-process-demo:
     - aws configure set credential_process "$PWD/gitlab-aws-credential-helper process"
     - ./gitlab-aws-credential-helper process  # just for demo purposes
     - aws sts get-caller-identity
+
+env-exec-demo:
+  stage: build
+  needs:
+    - get-credential-helper
+  image:
+    name: public.ecr.aws/aws-cli/aws-cli:2.13.17
+    entrypoint: [""]
+  id_tokens:
+    GITLAB_AWS_IDENTITY_TOKEN:
+      aud: https://gitlab.com
+  script:
+    - ./gitlab-aws-credential-helper env -- aws sts get-caller-identity
