@@ -35,7 +35,8 @@ func TestNewEnvironmentWithCredentials(t *testing.T) {
 			credentials := awssts.Credentials{
 				AccessKeyId:     &tt.args.AccessKeyId,
 				SecretAccessKey: &tt.args.SecretAccessKey,
-				SessionToken:    &tt.args.SessionToken}
+				SessionToken:    &tt.args.SessionToken,
+			}
 
 			if got := NewEnvironmentWithCredentials(tt.args.env, &credentials); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewEnvironmentWithCredentials() = %v, want %v", got, tt.want)
