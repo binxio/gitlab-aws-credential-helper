@@ -26,7 +26,7 @@ The following flags can be applied to override the sensible defaults:
 ```text
 -A, --aws-account string               required - AWS account id to assume to role in (default $GITLAB_AWS_ACCOUNT_ID)
 -r, --role-name string                 required - Name of the role to assume (default gitlab-$CI_PROJECT_PATH_SLUG)
--n, --role-session-name string         required - the role session name to use (default <role name>-$CI_PIPELINE_ID)`
+-n, --role-session-name string         required - the role session name to use (default <role name>-$CI_PIPELINE_ID)
 -j, --web-identity-token-name string   required - of the environment variable with the JWT id token (default "GITLAB_AWS_IDENTITY_TOKEN")
 -d, --duration-seconds int             of the session (default 3600)
 ```
