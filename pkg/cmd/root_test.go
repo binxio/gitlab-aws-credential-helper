@@ -102,3 +102,30 @@ func TestSetDefaultsInvalidDuration(t *testing.T) {
 		t.Errorf("expected the default of 3600 as duration seconds")
 	}
 }
+
+func TestGenerateRoleSessionName(t *testing.T) {
+	type args struct {
+		roleName   string
+		pipelineId string
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{"no pipeline", args{"role", ""}, "role"},
+		{"role and pipeline", args{"role", "1234"}, "role-1234"},
+		{"no leading or trailing dash", args{"-role-", ""}, "role"},
+		{"invalid chars", args{"/gitlab/role", "1234"}, "gitlab-role-1234"},
+		{"multiple invalid chars", args{"/gitlab/role-%^$abc", "1234"}, "gitlab-role-abc-1234"},
+		{"all valid special chars", args{"foo=bar@binx.io_", "1234"}, "foo=bar@binx.io_-1234"},
+		{"keep dashes", args{"gitlab-role--nice", ""}, "gitlab-role-nice"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := GenerateRoleSessionName(tt.args.roleName, tt.args.pipelineId); got != tt.want {
+				t.Errorf("GenerateRoleSessionName() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

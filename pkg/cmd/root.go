@@ -4,7 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -81,6 +83,16 @@ func (c *RootCommand) SetDefaults() {
 	}
 }
 
+// GenerateRoleSessionName generates a valid role session name based on the role name and pipeline id.
+func GenerateRoleSessionName(roleName, pipelineId string) string {
+	invalidCharacters := regexp.MustCompile(`[^=,.@A-Za-z0-9_]+`)
+	validRoleSessionName := strings.Trim(invalidCharacters.ReplaceAllString(roleName, "-"), "-")
+	if pipelineId == "" {
+		return validRoleSessionName
+	}
+	return fmt.Sprintf("%s-%s", validRoleSessionName, pipelineId)
+}
+
 // GetSTSCredentials gets the STS credentials based upon the gitlab pipeline id token.
 func (c *RootCommand) GetSTSCredentials() error {
 	if c.RoleName == "" {
@@ -100,12 +112,7 @@ func (c *RootCommand) GetSTSCredentials() error {
 	}
 
 	if c.RoleSessionName == "" {
-		if c.PipelineId == "" {
-			c.RoleSessionName = c.RoleName
-
-		} else {
-			c.RoleSessionName = fmt.Sprintf("%s-%s", c.RoleName, c.PipelineId)
-		}
+		c.RoleSessionName = GenerateRoleSessionName(c.RoleName, c.PipelineId)
 	}
 
 	var err error
