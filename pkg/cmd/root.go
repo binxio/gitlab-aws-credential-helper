@@ -102,6 +102,7 @@ func (c *RootCommand) GetSTSCredentials() error {
 	if c.RoleSessionName == "" {
 		if c.PipelineId == "" {
 			c.RoleSessionName = c.RoleName
+
 		} else {
 			c.RoleSessionName = fmt.Sprintf("%s-%s", c.RoleName, c.PipelineId)
 		}
@@ -111,8 +112,7 @@ func (c *RootCommand) GetSTSCredentials() error {
 	var session *awssession.Session
 	session, err = awssession.NewSession(
 		&aws.Config{
-			Region:      aws.String("us-east-1"),
-			Credentials: credentials.NewStaticCredentials("", "", ""),
+			Credentials: credentials.AnonymousCredentials,
 		},
 	)
 	if err != nil {
