@@ -5,7 +5,8 @@ resource "aws_iam_openid_connect_provider" "gitlab" {
 }
 
 resource "aws_iam_role" "gitlab_pipeline" {
-  name = local.role_name
+  for_each = toset([local.role_name, "SecondDemoRole", "ThirdDemoRole"])
+  name = each.key
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
@@ -50,6 +51,7 @@ resource "aws_iam_role" "gitlab_pipeline" {
 
   max_session_duration = 7200
 }
+
 
 data "external" "thumbprint" {
   program = ["./bin/get-thumbprint"]
