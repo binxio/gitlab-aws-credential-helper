@@ -53,8 +53,12 @@ aws-profile-demo:
       aud: https://gitlab.com
   script:
     - ./gitlab-aws-credential-helper aws-profile
+    - ./gitlab-aws-credential-helper aws-profile --name second --role-name SecondDemoRole
+    - ./gitlab-aws-credential-helper aws-profile --name third --role-name ThirdDemoRole
     - cat $HOME/.aws/credentials  # just for demo purposes
     - aws --profile default sts get-caller-identity
+    - aws --profile second sts get-caller-identity
+    - aws --profile third sts get-caller-identity
 
 credential-process-demo:
   stage: build
@@ -87,3 +91,5 @@ env-exec-demo:
       aud: https://gitlab.com
   script:
     - ./gitlab-aws-credential-helper env -- aws sts get-caller-identity
+    - ./gitlab-aws-credential-helper env --role-name SecondDemoRole -- aws sts get-caller-identity
+    - ./gitlab-aws-credential-helper env --role-name ThirdDemoRole -- aws sts get-caller-identity

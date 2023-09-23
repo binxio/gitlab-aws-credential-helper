@@ -35,12 +35,12 @@ The following flags can be applied to override the sensible defaults:
 Stores the credentials in the AWS shared credentials file under the profile name "default".
 
 The profile name defaults to "default"  but can be overridden through the environment
-variable GITLAB_AWS_PROFILE or the command line option -p.
+variable GITLAB_AWS_PROFILE or the command line option --name/-p.
 
 ### Flags
 In addition to the global flags, the following flags can be applied to override the sensible defaults:
 ```text
--p, --aws-profile string               the name of AWS profile (default "default")
+-p, --name string                      the name of AWS profile (default "default")
 ```
 
 | name        | default value | override         |

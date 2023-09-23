@@ -30,7 +30,7 @@ func NewCmd() *cobra.Command {
 Stores the credentials in the AWS shared credentials file under the profile name "default". 
 
 The profile name defaults to "default"  but can be overridden through the environment
-variable GITLAB_AWS_PROFILE or the command line option -p.
+variable GITLAB_AWS_PROFILE or the command line option --name/-p.
 
 The following gitlab-ci.yml snippets shows the usage of the aws-profile command:
 
@@ -70,7 +70,7 @@ The following gitlab-ci.yml snippets shows the usage of the aws-profile command:
 	if c.AWSProfile = os.Getenv("GITLAB_AWS_PROFILE"); c.AWSProfile == "" {
 		c.AWSProfile = "default"
 	}
-	c.Flags().StringVarP(&c.AWSProfile, "aws-profile", "p", c.AWSProfile, "the name of AWS profile")
+	c.Flags().StringVarP(&c.AWSProfile, "name", "p", c.AWSProfile, "the name of AWS profile to store the credentials in")
 
 	c.RunE = func(cmd *cobra.Command, args []string) error {
 		return WriteToSharedConfig(c.AWSProfile, c.Credentials)
@@ -78,7 +78,7 @@ The following gitlab-ci.yml snippets shows the usage of the aws-profile command:
 
 	c.PreRunE = func(cmd *cobra.Command, args []string) error {
 		if c.AWSProfile == "" {
-			return errors.New("no --aws-profile was specified or GITLAB_AWS_PROFILE was empty.")
+			return errors.New("no profile name was specified.")
 		}
 		return nil
 	}
