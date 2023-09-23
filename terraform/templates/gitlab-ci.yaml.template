@@ -52,7 +52,6 @@ aws-profile-demo:
     GITLAB_AWS_IDENTITY_TOKEN:
       aud: https://gitlab.com
   script:
-    - aws sts get-caller-identity
     - ./gitlab-aws-credential-helper aws-profile
     - cat $HOME/.aws/credentials  # just for demo purposes
     - aws --profile default sts get-caller-identity
@@ -70,7 +69,7 @@ credential-process-demo:
   script:
     - aws configure --profile default set credential_process "$PWD/gitlab-aws-credential-helper process"
     - aws configure --profile second set credential_process "$PWD/gitlab-aws-credential-helper process --role-name SecondDemoRole"
-    - aws configure --profile second set credential_process "$PWD/gitlab-aws-credential-helper process --role-name ThirdDemoRole"
+    - aws configure --profile third set credential_process "$PWD/gitlab-aws-credential-helper process --role-name ThirdDemoRole"
     - ./gitlab-aws-credential-helper process  # just for demo purposes
     - aws --profile default sts get-caller-identity
     - aws --profile second sts get-caller-identity
