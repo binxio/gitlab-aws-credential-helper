@@ -1,4 +1,7 @@
 variables:
+  AWS_PROFILE: default
+  AWS_CONFIG_FILE: $${CI_PROJECT_DIR}/.aws/config
+  AWS_SHARED_CREDENTIALS_FILE: $${CI_PROJECT_DIR}/.aws/credentials
   GITLAB_AWS_ACCOUNT_ID: ${aws_account_id}
   GITLAB_AWS_DURATION_SECONDS: 900
 
@@ -18,6 +21,16 @@ get-aws-credentials:
     reports:
       dotenv: .gitlab-aws-credentials.env
 
+env-demo:
+  stage: build
+  image:
+    name: public.ecr.aws/aws-cli/aws-cli:2.13.17
+    entrypoint: [""]
+  script:
+    - aws sts get-caller-identity
+  needs:
+    - get-aws-credentials
+
 get-credential-helper:
   stage: .pre
   image:
@@ -29,36 +42,6 @@ get-credential-helper:
     expire_in: 1 hour
     paths:
       - gitlab-aws-credential-helper
-
-
-env-demo:
-  stage: build
-  image:
-    name: public.ecr.aws/aws-cli/aws-cli:2.13.17
-    entrypoint: [""]
-  script:
-    - aws sts get-caller-identity
-  needs:
-    - get-aws-credentials
-
-aws-profile-demo:
-  stage: build
-  needs:
-    - get-credential-helper
-  image:
-    name: public.ecr.aws/aws-cli/aws-cli:2.13.17
-    entrypoint: [""]
-  id_tokens:
-    GITLAB_AWS_IDENTITY_TOKEN:
-      aud: https://gitlab.com
-  script:
-    - ./gitlab-aws-credential-helper aws-profile
-    - ./gitlab-aws-credential-helper aws-profile --name second --role-name SecondDemoRole
-    - ./gitlab-aws-credential-helper aws-profile --name third --role-name ThirdDemoRole
-    - cat $HOME/.aws/credentials  # just for demo purposes
-    - aws --profile default sts get-caller-identity
-    - aws --profile second sts get-caller-identity
-    - aws --profile third sts get-caller-identity
 
 credential-process-demo:
   stage: build
@@ -74,7 +57,27 @@ credential-process-demo:
     - aws configure --profile default set credential_process "$PWD/gitlab-aws-credential-helper process"
     - aws configure --profile second set credential_process "$PWD/gitlab-aws-credential-helper process --role-name SecondDemoRole"
     - aws configure --profile third set credential_process "$PWD/gitlab-aws-credential-helper process --role-name ThirdDemoRole"
+    - cat .aws/config  # just for demo purposes
     - ./gitlab-aws-credential-helper process  # just for demo purposes
+    - aws --profile default sts get-caller-identity
+    - aws --profile second sts get-caller-identity
+    - aws --profile third sts get-caller-identity
+
+aws-profile-demo:
+  stage: build
+  needs:
+    - get-credential-helper
+  image:
+    name: public.ecr.aws/aws-cli/aws-cli:2.13.17
+    entrypoint: [""]
+  id_tokens:
+    GITLAB_AWS_IDENTITY_TOKEN:
+      aud: https://gitlab.com
+  script:
+    - ./gitlab-aws-credential-helper aws-profile
+    - ./gitlab-aws-credential-helper aws-profile --name second --role-name SecondDemoRole
+    - ./gitlab-aws-credential-helper aws-profile --name third --role-name ThirdDemoRole
+    - cat .aws/credentials  # just for demo purposes
     - aws --profile default sts get-caller-identity
     - aws --profile second sts get-caller-identity
     - aws --profile third sts get-caller-identity
