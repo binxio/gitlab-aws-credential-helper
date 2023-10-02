@@ -30,6 +30,19 @@ The following flags can be applied to override the sensible defaults:
 -d, --duration-seconds int             of the session (default 3600)
 ```
 
+## Environment variables
+The following environment variables effect the credential helper:
+
+| Name                           | default                   | description                                                                                                        |
+|--------------------------------|---------------------------|--------------------------------------------------------------------------------------------------------------------|
+| GITLAB_AWS_ACCOUNT_ID          | ""                        | The AWS account id in which the IAM role is to be assumed                                                          |
+| GITLAB_AWS_PROFILE             | default                   | The name of the profile aws-profile writes the credentials to                                                      |
+| GITLAB_AWS_IDENTITY_TOKEN_NAME | GITLAB_AWS_IDENTITY_TOKEN | The name of the environment variable with the id token                                                             |
+| GITLAB_AWS_DURATION_ SECONDS   | 3600                      | The duration of the sts session token                                                                              |
+| CI_PIPELINE_ID                 | ""                        | predefined Gitlab variable, containing the pipeline id, used as suffix for the session name                        |
+| CI_PROJECT_PATH_SLUG           | ""                        | predefined Gitlab variable, used to create the role name by prefixing with gitlab- and truncating to 64 characters |
+
+
 ## Credential process
 Returns the credentials on stdout as specified by the credential_process interface. The process is called
 by the AWS library whenever credentials are required for access.
@@ -39,6 +52,36 @@ by the AWS library whenever credentials are required for access.
 
 ### Flags
 There are no flags in addition to the global flags for the credential process helper.
+
+
+## AWS profile
+Stores the credentials in the AWS shared credentials file under the profile name "default".
+
+The profile name defaults to "default"  but can be overridden through the environment
+variable GITLAB_AWS_PROFILE or the command line option --name/-p.
+
+### Flags
+In addition to the global flags, the following flags can be applied to override the sensible defaults:
+```text
+-p, --name string                      the name of AWS profile (default "default")
+```
+
+## Env
+Returns the credentials as the environment variables AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
+and AWS_SESSION_TOKEN.  When you pass a command to execute on the command line, the command
+will be executed without writing the credentials.
+
+The following gitlab-ci.yml snippets shows the usage of the env command:
+
+### Flags
+In addition to the global flags, the following flags can be applied to override the sensible defaults:
+```text
+-f, --filename string                  the name of the dotenv file (default stdout)
+-e, --export                           prefix the environment variables with "export " (default false)
+```
+
+## Examples
+This section contains an example for credential process, aws profile and env usage of the credential helper.
 
 ## credential_process example
 The following gitlab-ci.yml snippets shows the usage of the process command:
@@ -71,18 +114,6 @@ process-demo:
     - aws sts get-caller-identity
   needs:
     - get-credential-helper
-```
-
-## AWS profile
-Stores the credentials in the AWS shared credentials file under the profile name "default".
-
-The profile name defaults to "default"  but can be overridden through the environment
-variable GITLAB_AWS_PROFILE or the command line option --name/-p.
-
-### Flags
-In addition to the global flags, the following flags can be applied to override the sensible defaults:
-```text
--p, --name string                      the name of AWS profile (default "default")
 ```
 
 ### aws-profile example
@@ -118,22 +149,7 @@ aws-profile-demo:
     - get-credential-helper
 ```
 
-
-## env
-Returns the credentials as the environment variables AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
-and AWS_SESSION_TOKEN.  When you pass a command to execute on the command line, the command
-will be executed without writing the credentials.
-
-The following gitlab-ci.yml snippets shows the usage of the env command:
-
-### Flags
-In addition to the global flags, the following flags can be applied to override the sensible defaults:
-```text
--f, --filename string                  the name of the dotenv file (default stdout)
--e, --export                           prefix the environment variables with "export " (default false)
-```
-
-### dotenv example
+### env example
 The following gitlab-ci.yml snippets shows the usage of the dotenv command:
 ```yaml
 variables:
