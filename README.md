@@ -48,8 +48,7 @@ Returns the credentials on stdout as specified by the credential_process interfa
 by the AWS library whenever credentials are required for access.
 
 ### Usage
-`gitlab-aws-credential-helper process`
-
+`aws configure set credential_process "gitlab-aws-credential-helper process"`
 
 ## AWS profile
 Stores the credentials in the AWS shared credentials file under the profile name "default".
