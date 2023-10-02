@@ -48,10 +48,7 @@ Returns the credentials on stdout as specified by the credential_process interfa
 by the AWS library whenever credentials are required for access.
 
 ### Usage
-`gitlab-aws-credential-helper process [flags]`
-
-### Flags
-There are no flags in addition to the global flags for the credential process helper.
+`gitlab-aws-credential-helper process`
 
 
 ## AWS profile
