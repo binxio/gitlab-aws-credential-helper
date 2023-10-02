@@ -33,14 +33,14 @@ The following flags can be applied to override the sensible defaults:
 ## Environment variables
 The following environment variables effect the credential helper:
 
-| Name                           | default                   | description                                                                                                        |
-|--------------------------------|---------------------------|--------------------------------------------------------------------------------------------------------------------|
-| GITLAB_AWS_ACCOUNT_ID          | ""                        | The AWS account id in which the IAM role is to be assumed                                                          |
-| GITLAB_AWS_PROFILE             | default                   | The name of the profile aws-profile writes the credentials to                                                      |
-| GITLAB_AWS_IDENTITY_TOKEN_NAME | GITLAB_AWS_IDENTITY_TOKEN | The name of the environment variable with the id token                                                             |
-| GITLAB_AWS_DURATION_ SECONDS   | 3600                      | The duration of the sts session token                                                                              |
-| CI_PIPELINE_ID                 | ""                        | predefined Gitlab variable, containing the pipeline id, used as suffix for the session name                        |
-| CI_PROJECT_PATH_SLUG           | ""                        | predefined Gitlab variable, used to create the role name by prefixing with gitlab- and truncating to 64 characters |
+| Name                           | description                                                                                                        |
+|--------------------------------|--------------------------------------------------------------------------------------------------------------------|
+| GITLAB_AWS_ACCOUNT_ID          | The AWS account id in which the IAM role is to be assumed                                                          |
+| GITLAB_AWS_PROFILE             | The name of the profile aws-profile writes the credentials to, default "default"                                   |
+| GITLAB_AWS_IDENTITY_TOKEN_NAME | The name of the environment variable with the id token, default GITLAB_AWS_IDENTITY_TOKEN                          |
+| GITLAB_AWS_DURATION_ SECONDS   | The duration of the sts session token, default 3600                                                                |
+| CI_PIPELINE_ID                 | predefined Gitlab variable, containing the pipeline id, used as suffix for the session name                        |
+| CI_PROJECT_PATH_SLUG           | predefined Gitlab variable, used to create the role name by prefixing with gitlab- and truncating to 64 characters |
 
 
 ## Credential process
