@@ -120,11 +120,17 @@ func TestGenerateRoleSessionName(t *testing.T) {
 		{"multiple invalid chars", args{"/gitlab/role-%^$abc", "1234"}, "gitlab-role-abc-1234"},
 		{"all valid special chars", args{"foo=bar@binx.io_", "1234"}, "foo=bar@binx.io_-1234"},
 		{"keep dashes", args{"gitlab-role--nice", ""}, "gitlab-role-nice"},
+		{"truncated to 64 chars", args{"L9i3LA4rF2rtMhImJBdvsKiBEKeltlmz6VLeVMwalW6ZyWFgWtVYZxKQfKVMHK57", "232324"}, "L9i3LA4rF2rtMhImJBdvsKiBEKeltlmz6VLeVMwalW6ZyWFgWtVYZxKQf-232324"},
+		{"pipeline id longer than chars", args{"gitlab-role", "L9i3LA4rF2rtMhImJBdvsKiBEKeltlmz6VLeVMwalW6ZyWFgWtVYZxKQfKVMHK57AAA"}, "L9i3LA4rF2rtMhImJBdvsKiBEKeltlmz6VLeVMwalW6ZyWFgWtVYZxKQfKVMHK57"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := GenerateRoleSessionName(tt.args.roleName, tt.args.pipelineId); got != tt.want {
 				t.Errorf("GenerateRoleSessionName() = %v, want %v", got, tt.want)
+			} else {
+				if len(got) > 64 {
+					t.Errorf("GenerateRoleSessionName() = %v is over 64 characters long (%d)", got, len(got))
+				}
 			}
 		})
 	}

@@ -83,12 +83,26 @@ func (c *RootCommand) SetDefaults() {
 	}
 }
 
+func truncate(name string, maxLength int) string {
+	if len(name) < maxLength {
+		return name
+	}
+	return string([]rune(name)[0:maxLength])
+}
+
 // GenerateRoleSessionName generates a valid role session name based on the role name and pipeline id.
 func GenerateRoleSessionName(roleName, pipelineId string) string {
+	maxLength := 64
 	invalidCharacters := regexp.MustCompile(`[^=,.@A-Za-z0-9_]+`)
 	validRoleSessionName := strings.Trim(invalidCharacters.ReplaceAllString(roleName, "-"), "-")
 	if pipelineId == "" {
-		return validRoleSessionName
+		return truncate(validRoleSessionName, 64)
+	} else {
+		maxLength = 64 - len(pipelineId) - 1
+		if maxLength <= 0 {
+			return truncate(pipelineId, 64)
+		}
+		validRoleSessionName = truncate(validRoleSessionName, maxLength)
 	}
 	return fmt.Sprintf("%s-%s", validRoleSessionName, pipelineId)
 }
